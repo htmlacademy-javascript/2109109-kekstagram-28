@@ -6,14 +6,14 @@ checkStringLength('проверяемая строка', 10);
 //Функция для проверки, является ли строка палиндромом
 
 const checkIfPalindrome = (string) => {
-  const tempString = string.toLowerCase().replaceAll(' ', '');
+  string = string.toLowerCase();
   let reverseString = '';
-  for (let i = tempString.length - 1; i >= 0; i--) {
-    reverseString += tempString.at(i);
+  for (let i = string.length - 1; i >= 0; i--) {
+    reverseString += string[i];
   }
-  return tempString === reverseString;
+  return reverseString === string;
 };
-checkIfPalindrome('Лёша на полке клопа нашёл ');
+checkIfPalindrome('Кекс');
 
 //Функция, для извлечения целых положительных цифр из строки
 
@@ -26,7 +26,6 @@ const getNumbers = (string) => {
   }
   return parseInt(numbers, 10);
 };
-
 getNumbers('а я томат');
 
 //Функция, которая принимает три параметра: исходную строку, минимальную длину и строку с добавочными символами — и возвращает исходную строку, дополненную указанными символами до заданной длины.
@@ -37,5 +36,4 @@ const addSymbols = (string, minLength, symbols) => {
   }
   return string;
 };
-
 addSymbols('qwerty', 4, '0');
