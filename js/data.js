@@ -1,15 +1,6 @@
-import {
-  getRandomInteger,
-  getRandomArrayElement,
-  createIdGenerator,
-} from './util.js';
+import { getRandomInteger, createIdGenerator } from './util.js';
 
-const PICTURE_COUNT = 25;
-const AVATAR_COUNT = 6;
-const LIKE_MIN_COUNT = 15;
-const LIKE_MAX_COUNT = 200;
-const COMMENT_COUNT = 20;
-const COMMENT_LINES = [
+const MESSAGES = [
   'Всё отлично!',
   'В целом всё неплохо. Но не всё.',
   'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
@@ -32,34 +23,31 @@ const DESCRIPTIONS = [
 
 const NAMES = ['Нина', 'Соня', 'Максим', 'Стася', 'Вато', 'Саша'];
 
+const generatePhotoDescriptionId = createIdGenerator();
 const generateCommentId = createIdGenerator();
-
-const createMessage = () =>
-  Array.from({ length: getRandomInteger(1, 2) }, () =>
-    getRandomArrayElement(COMMENT_LINES),
-  ).join(' ');
 
 const createComment = () => ({
   id: generateCommentId(),
-  avatar: `img/avatar-${getRandomInteger(1, AVATAR_COUNT)}.svg`,
-  message: createMessage(),
-  name: getRandomArrayElement(NAMES),
+  avatar: `img/avatar-${getRandomInteger(1, 6)}.svg`,
+  message: MESSAGES[getRandomInteger(0, MESSAGES.length - 1)],
+  name: NAMES[getRandomInteger(0, NAMES.length - 1)],
 });
 
-const createPicture = (index) => ({
-  id: index,
-  url: `photos/${index}.jpg`,
-  description: getRandomArrayElement(DESCRIPTIONS),
-  likes: getRandomInteger(LIKE_MIN_COUNT, LIKE_MAX_COUNT),
-  comments: Array.from(
-    { length: getRandomInteger(0, COMMENT_COUNT) },
+const createPhotoDescription = () => {
+  const photoId = generatePhotoDescriptionId();
+  const commentArray = Array.from(
+    { length: getRandomInteger(0, 16) },
     createComment,
-  ),
-});
-
-const getPictures = () =>
-  Array.from({ length: PICTURE_COUNT }, (_, pictureIndex) =>
-    createPicture(pictureIndex + 1),
   );
+  return {
+    id: photoId,
+    url: `photos/${photoId}.jpg`,
+    description: DESCRIPTIONS[photoId - 1],
+    likes: getRandomInteger(15, 200),
+    comments: commentArray,
+  };
+};
 
-export { getPictures };
+const photoDescriptions = Array.from({ length: 25 }, createPhotoDescription);
+
+export { photoDescriptions };
