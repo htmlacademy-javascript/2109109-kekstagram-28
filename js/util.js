@@ -5,9 +5,6 @@ const getRandomInteger = (a, b) => {
   return Math.floor(result);
 };
 
-const getRandomArrayElement = (array) =>
-  array[getRandomInteger(0, array.length - 1)];
-
 const createIdGenerator = () => {
   let lastGeneratedId = 0;
 
@@ -16,5 +13,6 @@ const createIdGenerator = () => {
     return lastGeneratedId;
   };
 };
+const isEscapeKey = (evt) => evt.key === 'Escape';
 
-export { getRandomInteger, getRandomArrayElement, createIdGenerator };
+export { getRandomInteger, createIdGenerator, isEscapeKey };
