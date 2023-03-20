@@ -20,3 +20,5 @@ photoDescriptions.forEach((photoDescription) => {
 });
 
 thumbnailsElement.appendChild(thumbnailsFragment);
+
+export { thumbnailsElement };
