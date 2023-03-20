@@ -1,2 +1,3 @@
-import './thumbnail.js';
-import './big-picture.js';
+import { showPictureHandler } from './big-picture.js';
+
+showPictureHandler();

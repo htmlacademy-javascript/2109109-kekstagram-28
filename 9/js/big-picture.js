@@ -1,6 +1,6 @@
 import { photoDescriptions } from './data.js';
+import { thumbnailsElement } from './thumbnail.js';
 
-const thumbnailsElement = document.querySelector('.pictures');
 const bigPictureModal = document.querySelector('.big-picture');
 const bigPictureImg = bigPictureModal
   .querySelector('.big-picture__img')
@@ -114,14 +114,16 @@ btnCloseBigPicture.addEventListener('click', () => {
   closeFullSizePhoto();
 });
 
-//
+//main function
 
-thumbnailsElement.addEventListener('click', (evt) => {
-  const thumbnail = evt.target.closest('.picture');
-  if (thumbnail) {
-    evt.preventDefault();
-    openFullSizePhoto(thumbnail);
-  }
-});
+function showPictureHandler() {
+  thumbnailsElement.addEventListener('click', (evt) => {
+    const thumbnail = evt.target.closest('.picture');
+    if (thumbnail) {
+      evt.preventDefault();
+      openFullSizePhoto(thumbnail);
+    }
+  });
+}
 
-export { openFullSizePhoto };
+export { showPictureHandler };
