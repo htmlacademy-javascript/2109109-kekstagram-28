@@ -1,4 +1,3 @@
-import { getPictures } from './data.js';
-import { renderThumbnails } from './thumbnail.js';
+import { showPictureHandler } from './big-picture.js';
 
-renderThumbnails(getPictures());
+showPictureHandler();
