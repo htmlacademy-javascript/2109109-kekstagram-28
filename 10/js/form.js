@@ -1,86 +1,136 @@
-const VALID_SYMBOLS = /^#[a-zа-яё0-9]{1,19}$/i;
-const MAX_HASHTAG_COUNT = 5;
-const TAG_ERROR_TEXT = 'Хэштеги заполнены неправильно';
-
-const form = document.querySelector('.img-upload__form');
-const overlay = document.querySelector('.img-upload__overlay');
+const uploadFileInput = document.querySelector('#upload-file');
+const uploadSelectImageForm = document.querySelector('#upload-select-image');
+const imageOverlay = document.querySelector('.img-upload__overlay');
+const uploadCancel = imageOverlay.querySelector('#upload-cancel');
 const body = document.querySelector('body');
-const cancelButton = document.querySelector('#upload-cancel');
-const fileField = document.querySelector('#upload-file');
-const hashtagField = document.querySelector('.text__hashtags');
-const commentField = document.querySelector('.text__description');
+const hashtagInputField = document.querySelector('.text__hashtags');
+const commentInputField = document.querySelector('.text__description');
 
-const pristine = new Pristine(form, {
+const pristine = new Pristine(uploadSelectImageForm, {
   classTo: 'img-upload__field-wrapper',
   errorTextParent: 'img-upload__field-wrapper',
-  errorTextClass: 'img-upload__field-wrapper__error',
+  errorTextClass: 'img-upload__field-wrapper--error',
 });
 
-const showModal = () => {
-  overlay.classList.remove('hidden');
-  body.classList.add('modal-open');
-  document.addEventListener('keydown', onDocumentKeydown);
-};
+function initPhotoPostForm() {
+  // Opening a window with an image
 
-const hideModal = () => {
-  form.requestFullscreen();
-  pristine.reset();
-  overlay.classList.add('hidden');
-  body.classList.remove('modal-open');
-  document.removeEventListener('keydown', onDocumentKeydown);
-};
+  const onOpenModal = () => {
+    imageOverlay.classList.remove('hidden');
+    body.classList.add('modal-open');
 
-const isTextFieldFocused = () =>
-  document.activeElement === hashtagField ||
-  document.activeElement === commentField;
+    document.addEventListener('keydown', onDocumentKeydown);
+  };
 
-function onDocumentKeydown(evt) {
-  if (evt.key === 'Escape' && !isTextFieldFocused()) {
-    evt.preventDefault();
-    hideModal();
+  // Closing the window with an image
+
+  const CloseModal = () => {
+    uploadSelectImageForm.reset();
+    pristine.reset();
+    imageOverlay.classList.add('hidden');
+    body.classList.remove('modal-open');
+
+    uploadCancel.removeEventListener('click', CloseModal);
+    document.removeEventListener('keydown', onDocumentKeydown);
+  };
+
+  // closing the window with the click on the x-button
+
+  const onCancelButtonClick = () => {
+    CloseModal();
+  };
+
+  // Checking if input fields are active
+
+  const isInputFieldInFocus = () =>
+    document.activeElement === hashtagInputField ||
+    document.activeElement === commentInputField;
+
+  // Closing a window by pressing the Escape
+
+  function onDocumentKeydown(evt) {
+    if (evt.key === 'Escape' && !isInputFieldInFocus()) {
+      evt.preventDefault();
+
+      CloseModal();
+    }
   }
+
+  // A function that checks a hashtag
+
+  const isValidHashtag = (string) => {
+    if (string.length === 0) {
+      return true;
+    }
+    const hashtagPattern = /^#[a-zа-яё0-9]{1,19}$/i;
+    return hashtagPattern.test(string);
+  };
+
+  // Checking strings for hashtags
+
+  const checkStringValidHashtag = (string) => {
+    const stringAsAnArray = string.trim().split(' ');
+    return stringAsAnArray.every(isValidHashtag);
+  };
+
+  // Checking strings for duplicate hashtags
+
+  const checkStringForDublicateHashtags = (string) => {
+    const stringAsAnArray = string.trim().split(' ');
+    const uniqueElements = [];
+    for (let i = 0; i < stringAsAnArray.length; i++) {
+      if (!uniqueElements.includes(stringAsAnArray[i])) {
+        uniqueElements.push(stringAsAnArray[i]);
+      }
+    }
+    return uniqueElements.length === stringAsAnArray.length;
+  };
+
+  // Checking strings for the number of hashtags
+
+  const checkCountHashtags = (string) => {
+    const stringAsAnArray = string.trim().split(' ');
+    return stringAsAnArray.length <= 5;
+  };
+
+  // Checking strings for the number of characters entered
+
+  const checkCountInputChars = (string) => string.length <= 140;
+
+  pristine.addValidator(
+    hashtagInputField,
+    checkStringValidHashtag,
+    'Хэш-тег введен неверно',
+  );
+  pristine.addValidator(
+    hashtagInputField,
+    checkCountHashtags,
+    'Количество хэш-тегов больше 5',
+  );
+  pristine.addValidator(
+    hashtagInputField,
+    checkStringForDublicateHashtags,
+    'Хэш-теги повторяются',
+  );
+  pristine.addValidator(
+    commentInputField,
+    checkCountInputChars,
+    'Превышено количество введенных символов',
+  );
+
+  // Form validation
+
+  const onFormSubmit = (evt) => {
+    evt.preventDefault();
+    if (pristine.validate()) {
+      uploadSelectImageForm.submit();
+    }
+  };
+
+  uploadFileInput.addEventListener('change', onOpenModal);
+  uploadCancel.addEventListener('click', CloseModal);
+  uploadCancel.addEventListener('click', onCancelButtonClick);
+  uploadSelectImageForm.addEventListener('submit', onFormSubmit);
 }
 
-const onCancelButtonClick = () => {
-  hideModal();
-};
-
-const onFileInputChange = () => {
-  showModal();
-};
-
-const isValidTag = (tag) => VALID_SYMBOLS.test(tag);
-
-const hasValidCount = (tags) => tags.length <= MAX_HASHTAG_COUNT;
-
-const hasUniqueTags = (tags) => {
-  const lowerCaseTags = tags.map((tag) => tag.toLowerCase());
-  const temp = {};
-  lowerCaseTags.every((tag) => {
-    if (temp[tag]) {
-      return false;
-    }
-
-    temp[tag] = true;
-    return true;
-  });
-};
-
-const validateTags = (value) => {
-  const tags = value
-    .trim()
-    .split(' ')
-    .filter((tag) => tag.trim().length);
-  return hasValidCount(tags) && hasUniqueTags(tags) && tags.every(isValidTag);
-};
-
-pristine.addValidator(hashtagField, validateTags, TAG_ERROR_TEXT);
-
-const onFormSubmit = (evt) => {
-  evt.preventDefault();
-  pristine.validate();
-};
-
-fileField.addEventListener('change', onFileInputChange);
-cancelButton.addEventListener('click', onCancelButtonClick);
-form.addEventListener('submit', onFormSubmit);
+export { initPhotoPostForm };
