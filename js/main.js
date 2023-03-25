@@ -1,4 +1,5 @@
 import { showPictureHandler } from './big-picture.js';
-import './form.js';
+import { initPhotoPostForm } from './form.js';
 
 showPictureHandler();
+initPhotoPostForm();
