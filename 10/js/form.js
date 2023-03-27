@@ -24,20 +24,20 @@ function initPhotoPostForm() {
 
   // Closing the window with an image
 
-  const CloseModal = () => {
+  const сloseModal = () => {
     uploadSelectImageForm.reset();
     pristine.reset();
     imageOverlay.classList.add('hidden');
     body.classList.remove('modal-open');
 
-    uploadCancel.removeEventListener('click', CloseModal);
+    uploadCancel.removeEventListener('click', сloseModal);
     document.removeEventListener('keydown', onDocumentKeydown);
   };
 
   // closing the window with the click on the x-button
 
   const onCancelButtonClick = () => {
-    CloseModal();
+    сloseModal();
   };
 
   // Checking if input fields are active
@@ -52,7 +52,7 @@ function initPhotoPostForm() {
     if (evt.key === 'Escape' && !isInputFieldInFocus()) {
       evt.preventDefault();
 
-      CloseModal();
+      сloseModal();
     }
   }
 
@@ -100,12 +100,12 @@ function initPhotoPostForm() {
   pristine.addValidator(
     hashtagInputField,
     checkStringValidHashtag,
-    'Хэш-тег введен неверно',
+    'Хэш-тег введен неправильно',
   );
   pristine.addValidator(
     hashtagInputField,
     checkCountHashtags,
-    'Количество хэш-тегов больше 5',
+    'Количество хэш-тегов больше пяти',
   );
   pristine.addValidator(
     hashtagInputField,
@@ -128,7 +128,7 @@ function initPhotoPostForm() {
   };
 
   uploadFileInput.addEventListener('change', onOpenModal);
-  uploadCancel.addEventListener('click', CloseModal);
+  uploadCancel.addEventListener('click', сloseModal);
   uploadCancel.addEventListener('click', onCancelButtonClick);
   uploadSelectImageForm.addEventListener('submit', onFormSubmit);
 }
