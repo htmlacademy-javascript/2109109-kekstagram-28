@@ -122,6 +122,7 @@ function showPictureHandler() {
     if (thumbnail) {
       evt.preventDefault();
       openFullSizePhoto(thumbnail);
+      document.addEventListener('keydown', onDocumentKeydown);
     }
   });
 }
