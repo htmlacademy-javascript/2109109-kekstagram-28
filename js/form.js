@@ -1,3 +1,6 @@
+import { resetScale } from './scale.js';
+import { resetEffects } from './effects.js';
+
 const uploadFileInput = document.querySelector('#upload-file');
 const uploadSelectImageForm = document.querySelector('#upload-select-image');
 const imageOverlay = document.querySelector('.img-upload__overlay');
@@ -18,6 +21,7 @@ function initPhotoPostForm() {
   const onOpenModal = () => {
     imageOverlay.classList.remove('hidden');
     body.classList.add('modal-open');
+    resetScale();
 
     document.addEventListener('keydown', onDocumentKeydown);
   };
@@ -27,6 +31,7 @@ function initPhotoPostForm() {
   const сloseModal = () => {
     uploadSelectImageForm.reset();
     pristine.reset();
+    resetEffects();
     imageOverlay.classList.add('hidden');
     body.classList.remove('modal-open');
 
