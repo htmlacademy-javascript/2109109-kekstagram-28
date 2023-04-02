@@ -1,6 +1,3 @@
-import { photoDescriptions } from './data.js';
-import { thumbnailsElement } from './thumbnail.js';
-
 const bigPictureModal = document.querySelector('.big-picture');
 const bigPictureImg = bigPictureModal
   .querySelector('.big-picture__img')
@@ -9,93 +6,25 @@ const likesCount = bigPictureModal.querySelector('.likes-count');
 const commentsCount = bigPictureModal.querySelector('.comments-count');
 const btnCloseBigPicture = bigPictureModal.querySelector('.big-picture__cancel');
 const socialCommentList = document.querySelector('.social__comments');
+const socialComment = socialCommentList.querySelector('.social__comment');
 const socialCommentCount = bigPictureModal.querySelector(
   '.social__comment-count',
 );
 const socialCaption = bigPictureModal.querySelector('.social__caption');
 const commentsLoader = bigPictureModal.querySelector('.comments-loader');
 const body = document.querySelector('body');
+const COMMENTS_TO_SHOW_INITIAL = 5;
+let currentCommentsCount = COMMENTS_TO_SHOW_INITIAL;
+let updateLoadMoreClick;
 
-// closing modal with Esc button
+// opening photo
 
-const onDocumentKeydown = (evt) => {
-  if (evt.key === 'Escape') {
-    evt.preventDefault();
-    // eslint-disable-next-line no-use-before-define
-    closeFullSizePhoto();
-  }
-};
-
-//adding more comments
-
-const onButtonLoadMoreClick = () => {
-  let currentComment = socialCommentList.querySelector('.hidden');
-  let currentCommentNumber = parseInt(
-    socialCommentCount.querySelector('span').textContent,
-    10,
-  );
-  for (let i = 1; i <= 5; i++) {
-    currentComment.classList.remove('hidden');
-    currentComment = socialCommentList.querySelector('.hidden');
-
-    const counterSpan = socialCommentCount.querySelector('span');
-    currentCommentNumber += 1;
-    counterSpan.textContent = currentCommentNumber;
-
-    if (!currentComment) {
-      commentsLoader.classList.add('hidden');
-      break;
-    }
-  }
-};
-
-// opening photo and adding comments
-
-const openFullSizePhoto = (thumbnail) => {
-  document.body.classList.add('modal-open');
+const openFullSizePhoto = () => {
   bigPictureModal.classList.remove('hidden');
-  commentsLoader.classList.remove('hidden');
-
-  const pictureId = thumbnail.getAttribute('data-photo-id');
-  const pictureData = photoDescriptions.find(
-    // eslint-disable-next-line eqeqeq
-    (element) => element.id == pictureId,
-  );
-
-  bigPictureImg.src = pictureData.url;
-  likesCount.textContent = pictureData.likes;
-  socialCaption.textContent = pictureData.description;
+  body.classList.add('modal-open');
   socialCommentList.innerHTML = '';
 
-  const commentsAmount = pictureData.comments.length;
-  if (commentsAmount !== 0) {
-    commentsCount.innerHTML = `
-      <span>0</span>
-      из
-      <span class="comments-count">${commentsAmount}</span>
-      комментариев`;
-    pictureData.comments.forEach((comment) =>
-      socialCommentList.insertAdjacentHTML(
-        'beforeend',
-        `
-        <li class="social__comment hidden">
-          <img
-            class="social__picture"
-            src="${comment.avatar}"
-            alt="${comment.name}"
-            width="35" height="35"
-          >
-          <p class="social__text">${comment.message}</p>
-        </li>
-      `,
-      ),
-    );
-    commentsLoader.addEventListener('click', onButtonLoadMoreClick);
-    commentsLoader.click();
-  } else {
-    socialCommentCount.innerHTML = 'Нет комментариев';
-    commentsLoader.classList.add('hidden');
-  }
+  document.addEventListener('keydown', onDocumentKeydown);
 };
 
 // closing photo
@@ -105,26 +34,68 @@ const closeFullSizePhoto = () => {
   body.classList.remove('modal-open');
 
   document.removeEventListener('keydown', onDocumentKeydown);
-  commentsLoader.removeEventListener('click', onButtonLoadMoreClick);
 };
 
-// closing photo with a click on a close-button
+// closing photo by clicking close-btn
 
 btnCloseBigPicture.addEventListener('click', () => {
   closeFullSizePhoto();
 });
 
-//main function
+// closing modal with Esc button
 
-function showPictureHandler() {
-  thumbnailsElement.addEventListener('click', (evt) => {
-    const thumbnail = evt.target.closest('.picture');
-    if (thumbnail) {
-      evt.preventDefault();
-      openFullSizePhoto(thumbnail);
-      document.addEventListener('keydown', onDocumentKeydown);
-    }
-  });
+function onDocumentKeydown(evt) {
+  if (evt.key === 'Escape') {
+    evt.preventDefault();
+
+    closeFullSizePhoto();
+  }
 }
 
-export { showPictureHandler };
+// creating a comment under the full size photo
+
+const createCommentOnBigPhoto = (comment) => {
+  const commentElement = socialComment.cloneNode(true);
+  commentElement.querySelector('.social__picture').src = comment.avatar;
+  commentElement.querySelector('.social__picture').alt = comment.name;
+  commentElement.querySelector('.social__text').textContent = comment.message;
+  return commentElement;
+};
+
+// adding more comments
+
+const renderComments = (comments) => {
+  const commentsFragment = document.createDocumentFragment();
+  comments.slice(0, currentCommentsCount).forEach((comment) => {
+    commentsFragment.append(createCommentOnBigPhoto(comment));
+  });
+  socialCommentList.innerHTML = '';
+  socialCommentList.append(commentsFragment);
+  if (currentCommentsCount >= comments.length) {
+    currentCommentsCount = comments.length;
+    commentsLoader.classList.add('hidden');
+    commentsLoader.removeEventListener('click', updateLoadMoreClick);
+  } else {
+    commentsLoader.classList.remove('hidden');
+  }
+  socialCommentCount.textContent = `${currentCommentsCount} из ${comments.length} комментариев`;
+};
+
+// rendering full size pic
+
+const renderFullSizePicture = (picture) => {
+  openFullSizePhoto();
+  currentCommentsCount = COMMENTS_TO_SHOW_INITIAL;
+  bigPictureImg.src = picture.url;
+  likesCount.textContent = picture.likes;
+  socialCaption.textContent = picture.description;
+  commentsCount.textContent = picture.comments.length;
+  updateLoadMoreClick = () => {
+    currentCommentsCount += COMMENTS_TO_SHOW_INITIAL;
+    renderComments(picture.comments);
+  };
+  commentsLoader.addEventListener('click', updateLoadMoreClick);
+  renderComments(picture.comments);
+};
+
+export { renderFullSizePicture };
