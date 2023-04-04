@@ -1,68 +1,73 @@
-import { resetScale } from './scale.js';
+import { initScale, resetScale } from './scale.js';
 import { resetEffects } from './effects.js';
+import { sendData } from './api.js';
+import { showErrorWindow, showSuccessWindow } from './messages.js';
 
-const uploadFileInput = document.querySelector('#upload-file');
-const uploadSelectImageForm = document.querySelector('#upload-select-image');
-const imageOverlay = document.querySelector('.img-upload__overlay');
-const uploadCancel = imageOverlay.querySelector('#upload-cancel');
-const body = document.querySelector('body');
-const hashtagInputField = document.querySelector('.text__hashtags');
-const commentInputField = document.querySelector('.text__description');
+const UPLOAD_FILE_ID = 'upload-file';
+const UPLOAD_SELECT_IMAGE_FORM_ID = 'upload-select-image';
+const IMAGE_OVERLAY_CLASS = 'img-upload__overlay';
+const UPLOAD_CANCEL_ID = 'upload-cancel';
+const BODY_TAG = 'body';
+const HASHTAG_INPUT_FIELD_CLASS = '.text__hashtags';
+const COMMENT_INPUT_FIELD_CLASS = '.text__description';
+const SUBMIT_BTN_CLASS = '.img-upload__submit';
 
-const pristine = new Pristine(uploadSelectImageForm, {
-  classTo: 'img-upload__field-wrapper',
-  errorTextParent: 'img-upload__field-wrapper',
-  errorTextClass: 'img-upload__field-wrapper--error',
-});
+const submitButtonText = {
+  INITIAL: 'Опубликовать',
+  PUBLICATION: 'Публикую...',
+};
+
+const uploadFileInput = document.querySelector(`#${UPLOAD_FILE_ID}`);
+const uploadSelectImageForm = document.querySelector(
+  `#${UPLOAD_SELECT_IMAGE_FORM_ID}`,
+);
+const imageOverlay = document.querySelector(`.${IMAGE_OVERLAY_CLASS}`);
+const uploadCancel = imageOverlay.querySelector(`#${UPLOAD_CANCEL_ID}`);
+const body = document.querySelector(BODY_TAG);
+const hashtagInputField = document.querySelector(HASHTAG_INPUT_FIELD_CLASS);
+const commentInputField = document.querySelector(COMMENT_INPUT_FIELD_CLASS);
+const submitBtn = document.querySelector(SUBMIT_BTN_CLASS);
+
+const pristine = new Pristine(
+  document.getElementById(UPLOAD_SELECT_IMAGE_FORM_ID),
+  {
+    classTo: 'img-upload__field-wrapper',
+    errorTextParent: 'img-upload__field-wrapper',
+    errorTextClass: 'img-upload__field-wrapper--error',
+  },
+);
+
+// Closing the window with an image
+const closeModal = () => {
+  uploadSelectImageForm.reset();
+  pristine.reset();
+  resetEffects();
+  imageOverlay.classList.add('hidden');
+  body.classList.remove('modal-open');
+  uploadCancel.removeEventListener('click', closeModal);
+  document.removeEventListener('keydown', onDocumentKeydown);
+};
 
 function initPhotoPostForm() {
-  // Opening a window with an image
+  // Closing the window with the click on the x-button
+  const onCancelButtonClick = () => {
+    closeModal();
+  };
 
+  // Opening a window with an image
   const onOpenModal = () => {
     imageOverlay.classList.remove('hidden');
     body.classList.add('modal-open');
+    initScale();
     resetScale();
-
     document.addEventListener('keydown', onDocumentKeydown);
+
+    uploadCancel.addEventListener('click', closeModal);
+    uploadCancel.addEventListener('click', onCancelButtonClick);
   };
-
-  // Closing the window with an image
-
-  const сloseModal = () => {
-    uploadSelectImageForm.reset();
-    pristine.reset();
-    resetEffects();
-    imageOverlay.classList.add('hidden');
-    body.classList.remove('modal-open');
-
-    uploadCancel.removeEventListener('click', сloseModal);
-    document.removeEventListener('keydown', onDocumentKeydown);
-  };
-
-  // closing the window with the click on the x-button
-
-  const onCancelButtonClick = () => {
-    сloseModal();
-  };
-
-  // Checking if input fields are active
-
-  const isInputFieldInFocus = () =>
-    document.activeElement === hashtagInputField ||
-    document.activeElement === commentInputField;
-
-  // Closing a window by pressing the Escape
-
-  function onDocumentKeydown(evt) {
-    if (evt.key === 'Escape' && !isInputFieldInFocus()) {
-      evt.preventDefault();
-
-      сloseModal();
-    }
-  }
+  uploadFileInput.addEventListener('change', onOpenModal);
 
   // A function that checks a hashtag
-
   const isValidHashtag = (string) => {
     if (string.length === 0) {
       return true;
@@ -80,14 +85,9 @@ function initPhotoPostForm() {
 
   // Checking strings for duplicate hashtags
 
-  const checkStringForDublicateHashtags = (string) => {
+  const checkStringForDuplicateHashtags = (string) => {
     const stringAsAnArray = string.trim().split(' ');
-    const uniqueElements = [];
-    for (let i = 0; i < stringAsAnArray.length; i++) {
-      if (!uniqueElements.includes(stringAsAnArray[i])) {
-        uniqueElements.push(stringAsAnArray[i]);
-      }
-    }
+    const uniqueElements = Array.from(new Set(stringAsAnArray));
     return uniqueElements.length === stringAsAnArray.length;
   };
 
@@ -114,7 +114,7 @@ function initPhotoPostForm() {
   );
   pristine.addValidator(
     hashtagInputField,
-    checkStringForDublicateHashtags,
+    checkStringForDuplicateHashtags,
     'Хэш-теги повторяются',
   );
   pristine.addValidator(
@@ -122,20 +122,50 @@ function initPhotoPostForm() {
     checkCountInputChars,
     'Превышено количество введенных символов',
   );
-
-  // Form validation
-
-  const onFormSubmit = (evt) => {
-    evt.preventDefault();
-    if (pristine.validate()) {
-      uploadSelectImageForm.submit();
-    }
-  };
-
-  uploadFileInput.addEventListener('change', onOpenModal);
-  uploadCancel.addEventListener('click', сloseModal);
-  uploadCancel.addEventListener('click', onCancelButtonClick);
-  uploadSelectImageForm.addEventListener('submit', onFormSubmit);
 }
 
-export { initPhotoPostForm };
+// Checking if input fields are active
+const isInputFieldInFocus = () =>
+  document.activeElement === hashtagInputField ||
+  document.activeElement === commentInputField;
+
+// Closing a window by pressing the Escape
+function onDocumentKeydown(evt) {
+  if (evt.key === 'Escape' && !isInputFieldInFocus()) {
+    evt.preventDefault();
+    closeModal();
+  }
+}
+
+// Form validation
+
+const blockSubmitButton = () => {
+  submitBtn.disabled = true;
+  submitBtn.textContent = submitButtonText.PUBLICATION;
+};
+
+const unblockSubmitButton = () => {
+  submitBtn.disabled = false;
+  submitBtn.textContent = submitButtonText.INITIAL;
+};
+
+const onFormSubmit = () => {
+  uploadSelectImageForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+
+    if (pristine.validate()) {
+      blockSubmitButton();
+      sendData(new FormData(evt.target))
+        .then(() => {
+          closeModal();
+          showSuccessWindow();
+        })
+        .catch(() => {
+          showErrorWindow();
+        })
+        .finally(unblockSubmitButton);
+    }
+  });
+};
+
+export { initPhotoPostForm, onDocumentKeydown, onFormSubmit };
