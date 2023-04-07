@@ -44,7 +44,7 @@ const switchFilterClassNames = (filter) => {
   });
 };
 
-const handleFilterButtonClick = (filter, photos) => {
+const filterButtonClick = (filter, photos) => {
   const thumbnails = document.querySelectorAll('.picture');
   switchFilterClassNames(filter);
   removeThumbnails(thumbnails);
@@ -56,7 +56,7 @@ const setUpFiltering = (photos) => {
     btn.addEventListener(
       'click',
       debounce((event) => {
-        handleFilterButtonClick(event.target.id, photos);
+        filterButtonClick(event.target.id, photos);
       }, TIMEOUT),
     );
   });

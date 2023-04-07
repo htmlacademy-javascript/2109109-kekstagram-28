@@ -57,10 +57,9 @@ function onDocumentKeydown(evt) {
 
 // creating a comment under the full size photo
 
-const createCommentOnBigPhoto = (comment) => {
+const createCommentOnFullSizePhoto = (comment) => {
   const commentElement = socialComment.cloneNode(true);
   commentElement.querySelector('.social__picture').src = comment.avatar;
-  commentElement.querySelector('.social__picture').alt = comment.name;
   commentElement.querySelector('.social__text').textContent = comment.message;
   return commentElement;
 };
@@ -68,37 +67,43 @@ const createCommentOnBigPhoto = (comment) => {
 // adding more comments
 
 const renderComments = (comments) => {
-  const commentsFragment = document.createDocumentFragment();
-  comments.slice(0, currentCommentsCount).forEach((comment) => {
-    commentsFragment.append(createCommentOnBigPhoto(comment));
-  });
   socialCommentList.innerHTML = '';
-  socialCommentList.append(commentsFragment);
-  if (currentCommentsCount >= comments.length) {
-    currentCommentsCount = comments.length;
-    commentsLoader.classList.add('hidden');
+
+  comments.slice(0, currentCommentsCount).forEach((comment) => {
+    socialCommentList.innerHTML += createCommentOnFullSizePhoto(
+      comment,
+    ).outerHTML;
+  });
+
+  currentCommentsCount = Math.min(currentCommentsCount, comments.length);
+  const isAllCommentsDisplayed = currentCommentsCount >= comments.length;
+
+  commentsLoader.classList.toggle('hidden', isAllCommentsDisplayed);
+
+  if (isAllCommentsDisplayed) {
     commentsLoader.removeEventListener('click', updateLoadMoreClick);
-  } else {
-    commentsLoader.classList.remove('hidden');
   }
+
   socialCommentCount.textContent = `${currentCommentsCount} из ${comments.length} комментариев`;
 };
 
 // rendering full size pic
 
-const renderFullSizePicture = (picture) => {
+const renderFullSizePhoto = (picture) => {
   openFullSizePhoto();
-  currentCommentsCount = COMMENTS_COUNT;
-  bigPictureImg.src = picture.url;
-  likesCount.textContent = picture.likes;
-  socialCaption.textContent = picture.description;
-  commentsCount.textContent = picture.comments.length;
-  updateLoadMoreClick = () => {
+  const { url, likes, description, comments } = picture;
+  bigPictureImg.src = url;
+  likesCount.textContent = likes;
+  socialCaption.textContent = description;
+  commentsCount.textContent = comments.length;
+
+  const onLoadMoreClick = () => {
     currentCommentsCount += COMMENTS_COUNT;
-    renderComments(picture.comments);
+    renderComments(comments);
   };
-  commentsLoader.addEventListener('click', updateLoadMoreClick);
-  renderComments(picture.comments);
+
+  commentsLoader.addEventListener('click', onLoadMoreClick);
+  renderComments(comments);
 };
 
-export { renderFullSizePicture };
+export { renderFullSizePhoto };
