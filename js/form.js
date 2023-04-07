@@ -2,6 +2,7 @@ import { initScale, resetScale } from './scale.js';
 import { resetEffects } from './effects.js';
 import { sendData } from './api.js';
 import { showErrorWindow, showSuccessWindow } from './messages.js';
+import { isEscapeKeydown } from './util.js';
 
 const UPLOAD_FILE_ID = 'upload-file';
 const UPLOAD_SELECT_IMAGE_FORM_ID = 'upload-select-image';
@@ -131,7 +132,7 @@ const isInputFieldInFocus = () =>
 
 // Closing a window by pressing the Escape
 function onDocumentKeydown(evt) {
-  if (evt.key === 'Escape' && !isInputFieldInFocus()) {
+  if (isEscapeKeydown && !isInputFieldInFocus()) {
     evt.preventDefault();
     closeModal();
   }

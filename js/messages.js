@@ -1,4 +1,5 @@
 import { onDocumentKeydown } from './form.js';
+import { isEscapeKeydown } from './util.js';
 
 const successTemplate = document
   .querySelector('#success')
@@ -21,7 +22,7 @@ const closeSuccessWindow = () => {
 };
 
 function onSuccessKeydown(evt) {
-  if (evt.key === 'Escape') {
+  if (isEscapeKeydown) {
     evt.preventDefault();
 
     closeSuccessWindow();
@@ -55,7 +56,7 @@ const closeErrorWindow = () => {
 };
 
 function onErrorKeydown(evt) {
-  if (evt.key === 'Escape') {
+  if (isEscapeKeydown) {
     evt.preventDefault();
 
     closeErrorWindow();

@@ -1,3 +1,5 @@
+import { isEscapeKeydown } from './util.js';
+
 const bigPictureModal = document.querySelector('.big-picture');
 const bigPictureImg = bigPictureModal
   .querySelector('.big-picture__img')
@@ -45,7 +47,7 @@ btnCloseBigPicture.addEventListener('click', () => {
 // closing modal with Esc button
 
 function onDocumentKeydown(evt) {
-  if (evt.key === 'Escape') {
+  if (isEscapeKeydown) {
     evt.preventDefault();
 
     closeFullSizePhoto();
