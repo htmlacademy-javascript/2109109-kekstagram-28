@@ -3,6 +3,9 @@ import { resetEffects } from './effects.js';
 import { sendData } from './api.js';
 import { showErrorWindow, showSuccessWindow } from './messages.js';
 import { isEscapeKeydown } from './util.js';
+import { imageElement } from './scale.js';
+
+const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 
 const UPLOAD_FILE_ID = 'upload-file';
 const UPLOAD_SELECT_IMAGE_FORM_ID = 'upload-select-image';
@@ -38,6 +41,19 @@ const pristine = new Pristine(
   },
 );
 
+// Loading an image into the editing window
+
+const uploadPreviewImg = () => {
+  const file = uploadFileInput.files[0];
+  const fileName = file.name.toLowerCase();
+  const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
+
+  if (matches) {
+    imageElement.src = '';
+    imageElement.src = URL.createObjectURL(file);
+  }
+};
+
 // Closing the window with an image
 const closeModal = () => {
   uploadSelectImageForm.reset();
@@ -67,6 +83,7 @@ function initPhotoPostForm() {
     uploadCancel.addEventListener('click', onCancelButtonClick);
   };
   uploadFileInput.addEventListener('change', onOpenModal);
+  uploadFileInput.addEventListener('change', uploadPreviewImg);
 
   // A function that checks a hashtag
   const isValidHashtag = (string) => {
@@ -80,23 +97,23 @@ function initPhotoPostForm() {
   // Checking strings for hashtags
 
   const checkStringValidHashtag = (string) => {
-    const stringAsAnArray = string.trim().split(' ');
-    return stringAsAnArray.every(isValidHashtag);
+    const hashtagList = string.trim().split(' ');
+    return hashtagList.every(isValidHashtag);
   };
 
   // Checking strings for duplicate hashtags
 
   const checkStringForDuplicateHashtags = (string) => {
-    const stringAsAnArray = string.trim().split(' ');
-    const uniqueElements = Array.from(new Set(stringAsAnArray));
-    return uniqueElements.length === stringAsAnArray.length;
+    const hashtagList = string.trim().split(' ');
+    const uniqueElements = Array.from(new Set(hashtagList));
+    return uniqueElements.length === hashtagList.length;
   };
 
   // Checking strings for the number of hashtags
 
   const checkCountHashtags = (string) => {
-    const stringAsAnArray = string.trim().split(' ');
-    return stringAsAnArray.length <= 5;
+    const hashtagList = string.trim().split(' ');
+    return hashtagList.every(isValidHashtag);
   };
 
   // Checking strings for the number of characters entered

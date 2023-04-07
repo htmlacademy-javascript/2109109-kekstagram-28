@@ -2,7 +2,7 @@ import { renderThumbnails } from './thumbnail.js';
 import { debounce, sortRandom } from './util.js';
 
 const TIMEOUT = 500;
-const NUMBER_OF_PICTURES_TO_SHOW = 10;
+const PICTURES_COUNT = 10;
 const FILTERS = {
   default: 'filter-default',
   random: 'filter-random',
@@ -26,10 +26,7 @@ const filterPhotos = (photos, filter) => {
     case FILTERS.default:
       return photos;
     case FILTERS.random:
-      return photos
-        .slice()
-        .sort(sortRandom)
-        .slice(0, NUMBER_OF_PICTURES_TO_SHOW);
+      return photos.slice().sort(sortRandom).slice(0, PICTURES_COUNT);
     case FILTERS.topReviewed:
       return photos.slice().sort(sortByCommentCount);
     default:
@@ -54,7 +51,7 @@ const handleFilterButtonClick = (filter, photos) => {
   renderThumbnails(filterPhotos(photos, filter));
 };
 
-const setupFiltering = (photos) => {
+const setUpFiltering = (photos) => {
   filterBtns.forEach((btn) => {
     btn.addEventListener(
       'click',
@@ -65,4 +62,4 @@ const setupFiltering = (photos) => {
   });
 };
 
-export { setupFiltering, showFilters };
+export { setUpFiltering, showFilters };
