@@ -1,5 +1,3 @@
-import { imageElement } from './scale.js';
-
 const EFFECTS = [
   {
     name: 'none',
@@ -70,12 +68,14 @@ const EFFECTS = [
 ];
 
 const DEFAULT_EFFECT = EFFECTS[0];
-let chosenEffect = DEFAULT_EFFECT;
 
+const imageElement = document.querySelector('.img-upload__preview img');
 const sliderContainerElement = document.querySelector('.img-upload__effects');
 const sliderElement = document.querySelector('.effect-level__slider');
 const effectValue = document.querySelector('.effect-level__value');
 const effectLevel = document.querySelector('.img-upload__effect-level');
+
+let chosenEffect = DEFAULT_EFFECT;
 
 const isDefault = () => chosenEffect === DEFAULT_EFFECT;
 
