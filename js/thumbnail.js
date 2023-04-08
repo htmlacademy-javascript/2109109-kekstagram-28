@@ -1,4 +1,4 @@
-import { renderFullSizePicture } from './big-picture.js';
+import { renderFullSizePhoto } from './big-picture.js';
 
 const photoContainer = document.querySelector('.pictures');
 const photoTemplate = document
@@ -19,7 +19,7 @@ const createThumbnail = (picture) => {
     picture.comments.length;
 
   thumbnail.addEventListener('click', () => {
-    renderFullSizePicture(picture);
+    renderFullSizePhoto(picture);
   });
   return thumbnail;
 };
@@ -27,11 +27,10 @@ const createThumbnail = (picture) => {
 // generating miniatures
 
 const renderThumbnails = (pictures) => {
-  const photoGalleryFragment = document.createDocumentFragment();
   pictures.forEach((picture) => {
-    photoGalleryFragment.append(createThumbnail(picture));
+    const thumbnail = createThumbnail(picture);
+    photoContainer.appendChild(thumbnail);
   });
-  photoContainer.append(photoGalleryFragment);
 };
 
 export { renderThumbnails };

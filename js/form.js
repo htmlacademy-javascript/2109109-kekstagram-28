@@ -104,21 +104,20 @@ function initPhotoPostForm() {
   // Checking strings for duplicate hashtags
 
   const checkStringForDuplicateHashtags = (string) => {
-    const hashtagList = string.trim().split(' ');
-    const uniqueElements = Array.from(new Set(hashtagList));
-    return uniqueElements.length === hashtagList.length;
+    const hashtagList = [...new Set(string.trim().split(' '))];
+    return hashtagList.length === string.trim().split(' ').length;
   };
 
   // Checking strings for the number of hashtags
 
-  const checkCountHashtags = (string) => {
+  const checkHashtagsCount = (string) => {
     const hashtagList = string.trim().split(' ');
-    return hashtagList.every(isValidHashtag);
+    return hashtagList.length < 6;
   };
 
   // Checking strings for the number of characters entered
 
-  const checkCountInputChars = (string) => string.length <= 140;
+  const checkInputCharsCount = (string) => string.length <= 140;
 
   pristine.addValidator(
     hashtagInputField,
@@ -127,7 +126,7 @@ function initPhotoPostForm() {
   );
   pristine.addValidator(
     hashtagInputField,
-    checkCountHashtags,
+    checkHashtagsCount,
     'Количество хэш-тегов больше пяти',
   );
   pristine.addValidator(
@@ -137,7 +136,7 @@ function initPhotoPostForm() {
   );
   pristine.addValidator(
     commentInputField,
-    checkCountInputChars,
+    checkInputCharsCount,
     'Превышено количество введенных символов',
   );
 }
