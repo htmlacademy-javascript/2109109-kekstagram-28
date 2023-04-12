@@ -20,7 +20,7 @@ const body = document.querySelector('body');
 let currentCommentsCount = COMMENTS_COUNT;
 let updateLoadMoreClick;
 
-// opening photo
+// opening one photo
 
 const openFullSizePhoto = () => {
   bigPictureModal.classList.remove('hidden');
