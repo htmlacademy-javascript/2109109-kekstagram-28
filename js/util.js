@@ -1,4 +1,4 @@
-const ALERT_SHOW_TIME = 5000;
+const DEBOUNCE_TIMEOUT = 500;
 
 const showAlert = (message) => {
   const alertContainer = document.createElement('div');
@@ -15,23 +15,18 @@ const showAlert = (message) => {
   alertContainer.textContent = message;
 
   document.body.append(alertContainer);
-
-  setTimeout(() => {
-    alertContainer.remove();
-  }, ALERT_SHOW_TIME);
 };
 
 const sortRandom = () => Math.random() - 0.5;
 
-const isEscapeKeydown = (evt) => evt.key === 'Escape';
+const isEscapeKey = (evt) => evt.key === 'Escape';
 
-const debounce = (callback, timeoutDelay = 500) => {
+const debounce = (callback, timeoutDelay = DEBOUNCE_TIMEOUT) => {
   let timeoutId;
-
   return (...rest) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
   };
 };
 
-export { showAlert, sortRandom, isEscapeKeydown, debounce };
+export { showAlert, sortRandom, isEscapeKey, debounce };

@@ -1,22 +1,23 @@
-import { initScale, resetScale } from './scale.js';
+import { resetScale } from './scale.js';
 import { resetEffects } from './effects.js';
 import { sendData } from './api.js';
 import { showErrorWindow, showSuccessWindow } from './messages.js';
-import { isEscapeKeydown } from './util.js';
+import { isEscapeKey } from './util.js';
 import { imageElement } from './scale.js';
 
 const FILE_TYPES = ['jpg', 'jpeg', 'png'];
+const HASHTAG_COUNT = 5;
+const DESCRIPTION_MAX_LENGTH = 140;
 
 const UPLOAD_FILE_ID = 'upload-file';
 const UPLOAD_SELECT_IMAGE_FORM_ID = 'upload-select-image';
 const IMAGE_OVERLAY_CLASS = 'img-upload__overlay';
 const UPLOAD_CANCEL_ID = 'upload-cancel';
-const BODY_TAG = 'body';
 const HASHTAG_INPUT_FIELD_CLASS = '.text__hashtags';
 const COMMENT_INPUT_FIELD_CLASS = '.text__description';
 const SUBMIT_BTN_CLASS = '.img-upload__submit';
 
-const submitButtonText = {
+const submitButtonTextOptions = {
   INITIAL: 'Опубликовать',
   PUBLICATION: 'Публикую...',
 };
@@ -27,7 +28,7 @@ const uploadSelectImageForm = document.querySelector(
 );
 const imageOverlay = document.querySelector(`.${IMAGE_OVERLAY_CLASS}`);
 const uploadCancel = imageOverlay.querySelector(`#${UPLOAD_CANCEL_ID}`);
-const body = document.querySelector(BODY_TAG);
+const body = document.querySelector('body');
 const hashtagInputField = document.querySelector(HASHTAG_INPUT_FIELD_CLASS);
 const commentInputField = document.querySelector(COMMENT_INPUT_FIELD_CLASS);
 const submitBtn = document.querySelector(SUBMIT_BTN_CLASS);
@@ -43,81 +44,78 @@ const pristine = new Pristine(
 
 // Loading an image into the editing window
 
-const uploadPreviewImg = () => {
+const previewImgHandler = () => {
   const file = uploadFileInput.files[0];
   const fileName = file.name.toLowerCase();
-  const matches = FILE_TYPES.some((it) => fileName.endsWith(it));
+  const hasAllowedExtention = FILE_TYPES.some((type) => fileName.endsWith(type));
 
-  if (matches) {
+  if (hasAllowedExtention) {
     imageElement.src = '';
     imageElement.src = URL.createObjectURL(file);
   }
 };
 
 // Closing the window with an image
-const closeModal = () => {
+const closeModalHandler = () => {
   uploadSelectImageForm.reset();
   pristine.reset();
   resetEffects();
   imageOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
-  uploadCancel.removeEventListener('click', closeModal);
+
+  uploadCancel.removeEventListener('click', closeModalHandler);
   document.removeEventListener('keydown', onDocumentKeydown);
 };
 
 function initPhotoPostForm() {
   // Closing the window with the click on the x-button
-  const onCancelButtonClick = () => {
-    closeModal();
-  };
 
   // Opening a window with an image
-  const onOpenModal = () => {
+  const openModalHandler = () => {
     imageOverlay.classList.remove('hidden');
     body.classList.add('modal-open');
-    initScale();
     resetScale();
-    document.addEventListener('keydown', onDocumentKeydown);
 
-    uploadCancel.addEventListener('click', closeModal);
-    uploadCancel.addEventListener('click', onCancelButtonClick);
+    uploadCancel.addEventListener('click', closeModalHandler);
+    document.addEventListener('keydown', onDocumentKeydown);
   };
-  uploadFileInput.addEventListener('change', onOpenModal);
-  uploadFileInput.addEventListener('change', uploadPreviewImg);
+  uploadFileInput.addEventListener('change', openModalHandler);
+  uploadFileInput.addEventListener('change', previewImgHandler);
 
   // A function that checks a hashtag
   const isValidHashtag = (string) => {
-    if (string.length === 0) {
-      return true;
-    }
     const hashtagPattern = /^#[a-zа-яё0-9]{1,19}$/i;
     return hashtagPattern.test(string);
   };
 
   // Checking strings for hashtags
 
-  const checkStringValidHashtag = (string) => {
-    const hashtagList = string.trim().split(' ');
-    return hashtagList.every(isValidHashtag);
-  };
+  const removeSpaces = (string) =>
+    string
+      .trim()
+      .split(' ')
+      .filter((item) => item.length > 0);
+
+  const checkStringValidHashtag = (string) =>
+    removeSpaces(string).every(isValidHashtag);
 
   // Checking strings for duplicate hashtags
 
   const checkStringForDuplicateHashtags = (string) => {
-    const hashtagList = [...new Set(string.trim().split(' '))];
-    return hashtagList.length === string.trim().split(' ').length;
+    const stringAsAnArray = removeSpaces(string);
+    const uniqueElements = Array.from(new Set(stringAsAnArray));
+    return uniqueElements.length === stringAsAnArray.length;
   };
 
   // Checking strings for the number of hashtags
 
-  const checkHashtagsCount = (string) => {
-    const hashtagList = string.trim().split(' ');
-    return hashtagList.length < 6;
-  };
+  const checkHashtagsCount = (string) =>
+    removeSpaces(string).length <= HASHTAG_COUNT;
 
   // Checking strings for the number of characters entered
 
-  const checkInputCharsCount = (string) => string.length <= 140;
+  const checkInputCharsCount = (string) =>
+    string.length <= DESCRIPTION_MAX_LENGTH;
 
   pristine.addValidator(
     hashtagInputField,
@@ -127,7 +125,7 @@ function initPhotoPostForm() {
   pristine.addValidator(
     hashtagInputField,
     checkHashtagsCount,
-    'Количество хэш-тегов больше пяти',
+    'Количество хэш-тегов не должно быть больше пяти',
   );
   pristine.addValidator(
     hashtagInputField,
@@ -137,7 +135,7 @@ function initPhotoPostForm() {
   pristine.addValidator(
     commentInputField,
     checkInputCharsCount,
-    'Превышено количество введенных символов',
+    'Длина комментария не может быть больше 140 символов',
   );
 }
 
@@ -148,9 +146,9 @@ const isInputFieldInFocus = () =>
 
 // Closing a window by pressing the Escape
 function onDocumentKeydown(evt) {
-  if (isEscapeKeydown && !isInputFieldInFocus()) {
+  if (isEscapeKey(evt) && !isInputFieldInFocus()) {
     evt.preventDefault();
-    closeModal();
+    closeModalHandler();
   }
 }
 
@@ -158,15 +156,15 @@ function onDocumentKeydown(evt) {
 
 const blockSubmitButton = () => {
   submitBtn.disabled = true;
-  submitBtn.textContent = submitButtonText.PUBLICATION;
+  submitBtn.textContent = submitButtonTextOptions.PUBLICATION;
 };
 
 const unblockSubmitButton = () => {
   submitBtn.disabled = false;
-  submitBtn.textContent = submitButtonText.INITIAL;
+  submitBtn.textContent = submitButtonTextOptions.INITIAL;
 };
 
-const onFormSubmit = () => {
+const formSubmitHandler = () => {
   uploadSelectImageForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
 
@@ -174,7 +172,7 @@ const onFormSubmit = () => {
       blockSubmitButton();
       sendData(new FormData(evt.target))
         .then(() => {
-          closeModal();
+          closeModalHandler();
           showSuccessWindow();
         })
         .catch(() => {
@@ -185,4 +183,4 @@ const onFormSubmit = () => {
   });
 };
 
-export { initPhotoPostForm, onDocumentKeydown, onFormSubmit };
+export { initPhotoPostForm, onDocumentKeydown, formSubmitHandler };

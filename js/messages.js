@@ -1,28 +1,34 @@
 import { onDocumentKeydown } from './form.js';
-import { isEscapeKeydown } from './util.js';
+import { isEscapeKey } from './util.js';
 
-const successTemplate = document
-  .querySelector('#success')
-  .content.querySelector('.success');
-const successWindow = successTemplate.cloneNode(true);
-const successBtn = successWindow.querySelector('.success__button');
-const successInner = successWindow.querySelector('.success__inner');
+const createTemplate = (type) => {
+  const result = {};
+  result[`${type}Template`] = document
+    .querySelector(`#${type}`)
+    .content.querySelector(`.${type}`);
+  result[`${type}Window`] = result[`${type}Template`].cloneNode(true);
+  result[`${type}Btn`] = result[`${type}Window`].querySelector(
+    `.${type}__button`,
+  );
+  result[`${type}Inner`] = result[`${type}Window`].querySelector(
+    `.${type}__inner`,
+  );
 
-const errorTemplate = document
-  .querySelector('#error')
-  .content.querySelector('.error');
-const errorWindow = errorTemplate.cloneNode(true);
-const errorBtn = errorWindow.querySelector('.error__button');
-const errorInner = errorWindow.querySelector('.error__inner');
+  return result;
+};
+
+const successTemplate = createTemplate('success');
+
+const errorTemplate = createTemplate('error');
 
 const closeSuccessWindow = () => {
-  successWindow.remove();
+  successTemplate.successWindow.remove();
   document.removeEventListener('keydown', onSuccessKeydown);
-  document.removeEventListener('click', onSuccessClick);
+  document.removeEventListener('click', successClickHandler);
 };
 
 function onSuccessKeydown(evt) {
-  if (isEscapeKeydown) {
+  if (isEscapeKey) {
     evt.preventDefault();
 
     closeSuccessWindow();
@@ -31,32 +37,32 @@ function onSuccessKeydown(evt) {
 
 // closing by clicking anywhere
 
-function onSuccessClick(evt) {
-  if (evt.target !== successInner) {
+function successClickHandler(evt) {
+  if (evt.target !== successTemplate.successInner) {
     closeSuccessWindow();
   }
 }
 
 const showSuccessWindow = () => {
-  document.body.append(successWindow);
+  document.body.append(successTemplate.successWindow);
 
-  successBtn.addEventListener('click', () => {
+  successTemplate.successBtn.addEventListener('click', () => {
     closeSuccessWindow();
   });
 
   document.addEventListener('keydown', onSuccessKeydown);
-  document.addEventListener('click', onSuccessClick);
+  document.addEventListener('click', successClickHandler);
 };
 
 const closeErrorWindow = () => {
-  errorWindow.remove();
-  document.removeEventListener('keydown', onErrorKeydown);
-  document.removeEventListener('click', onErrorClick);
+  errorTemplate.errorWindow.remove();
+  document.removeEventListener('keydown', errorKeydownHandler);
+  document.removeEventListener('click', errorClickHandler);
   document.addEventListener('keydown', onDocumentKeydown);
 };
 
-function onErrorKeydown(evt) {
-  if (isEscapeKeydown) {
+function errorKeydownHandler(evt) {
+  if (isEscapeKey) {
     evt.preventDefault();
 
     closeErrorWindow();
@@ -65,22 +71,22 @@ function onErrorKeydown(evt) {
 
 // closing by clicking anywhere
 
-function onErrorClick(evt) {
-  if (evt.target !== errorInner) {
+function errorClickHandler(evt) {
+  if (evt.target !== errorTemplate.errorInner) {
     closeErrorWindow();
   }
 }
 
 const showErrorWindow = () => {
-  document.body.append(errorWindow);
+  document.body.append(errorTemplate.errorWindow);
 
-  errorBtn.addEventListener('click', () => {
+  errorTemplate.errorBtn.addEventListener('click', () => {
     closeErrorWindow();
   });
 
-  document.addEventListener('keydown', onErrorKeydown);
-  document.addEventListener('click', onErrorClick);
+  document.addEventListener('keydown', errorKeydownHandler);
+  document.addEventListener('click', errorClickHandler);
   document.removeEventListener('keydown', onDocumentKeydown);
 };
 
-export { showSuccessWindow, showErrorWindow, errorWindow };
+export { showSuccessWindow, showErrorWindow };

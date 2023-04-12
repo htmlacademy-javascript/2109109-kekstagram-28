@@ -23,8 +23,6 @@ const sortByCommentCount = (a, b) => b.comments.length - a.comments.length;
 
 const filterPhotos = (photos, filter) => {
   switch (filter) {
-    case FILTERS.default:
-      return photos;
     case FILTERS.random:
       return photos.slice().sort(sortRandom).slice(0, PICTURES_COUNT);
     case FILTERS.topReviewed:
