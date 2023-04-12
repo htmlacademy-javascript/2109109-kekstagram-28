@@ -27,10 +27,11 @@ const createThumbnail = (picture) => {
 // generating miniatures
 
 const renderThumbnails = (pictures) => {
+  const photoGalleryFragment = document.createDocumentFragment();
   pictures.forEach((picture) => {
-    const thumbnail = createThumbnail(picture);
-    photoContainer.appendChild(thumbnail);
+    photoGalleryFragment.append(createThumbnail(picture));
   });
+  photoContainer.append(photoGalleryFragment);
 };
 
 export { renderThumbnails };

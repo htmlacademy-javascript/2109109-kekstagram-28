@@ -1,54 +1,48 @@
 // Create an array of effects
-const EFFECTS = [
-  {
-    name: 'none',
+const EFFECTS = {
+  default: {
     filter: 'none',
     range: { min: 0, max: 100 },
     step: 1,
     start: 100,
     unit: '',
   },
-  {
-    name: 'chrome',
+  chrome: {
     filter: 'grayscale',
     range: { min: 0, max: 1 },
     step: 0.1,
     start: 1,
     unit: '',
   },
-  {
-    name: 'sepia',
+  sepia: {
     filter: 'sepia',
     range: { min: 0, max: 1 },
     step: 0.1,
     start: 1,
     unit: '',
   },
-  {
-    name: 'marvin',
+  marvin: {
     filter: 'invert',
     range: { min: 0, max: 100 },
     step: 1,
     start: 100,
     unit: '%',
   },
-  {
-    name: 'phobos',
+  phobos: {
     filter: 'blur',
     range: { min: 0, max: 3 },
     step: 0.1,
     start: 3,
     unit: 'px',
   },
-  {
-    name: 'heat',
+  heat: {
     filter: 'brightness',
     range: { min: 1, max: 3 },
     step: 0.1,
     start: 3,
     unit: '',
   },
-];
+};
 
 const imageElement = document.querySelector('.img-upload__preview img');
 const sliderContainerElement = document.querySelector('.img-upload__effects');
@@ -57,7 +51,7 @@ const effectValue = document.querySelector('.effect-level__value');
 const effectLevel = document.querySelector('.img-upload__effect-level');
 
 // Set the default effect
-const DEFAULT_EFFECT = EFFECTS[0];
+const DEFAULT_EFFECT = EFFECTS.default;
 let chosenEffect = DEFAULT_EFFECT;
 
 // Function to check if the chosen effect is the default effect
@@ -66,6 +60,7 @@ const isDefault = () => chosenEffect === DEFAULT_EFFECT;
 // Functions to show/hide the slider and update the slider
 const showSlider = () => effectLevel.classList.remove('hidden');
 const hideSlider = () => effectLevel.classList.add('hidden');
+
 const updateSlider = () => {
   sliderElement.noUiSlider.updateOptions({
     range: chosenEffect.range,
@@ -104,14 +99,14 @@ hideSlider();
 // Add event listeners
 sliderContainerElement.addEventListener('change', (evt) => {
   if (evt.target.classList.contains('effects__radio')) {
-    chosenEffect = EFFECTS.find((effect) => effect.name === evt.target.value);
-    imageElement.className = `effects__preview--${chosenEffect.name}`;
+    chosenEffect = EFFECTS[evt.target.value];
+    imageElement.className = `effects__preview--${evt.target.value}`;
     updateSlider();
   }
 });
 
-slider.on('update', () => {
-  const sliderValue = slider.get();
+slider.on('update', (sliderValues) => {
+  const sliderValue = sliderValues[0];
   effectValue.value = sliderValue;
   if (isDefault()) {
     imageElement.style.filter = DEFAULT_EFFECT.filter;
