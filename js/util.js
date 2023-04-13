@@ -27,8 +27,6 @@ const isEscapeKey = (evt) => evt.key === 'Escape';
 //     clearTimeout(timeoutId);
 //     timeoutId = setTimeout(() => {
 //       callback.apply(this, rest);
-//       // eslint-disable-next-line no-console
-//       console.log('debounce');
 //     }, timeoutDelay);
 //   };
 // };
