@@ -1,9 +1,15 @@
-import { resetScale } from './scale.js';
 import { resetEffects } from './effects.js';
 import { sendData } from './api.js';
 import { showErrorWindow, showSuccessWindow } from './messages.js';
 import { isEscapeKey } from './util.js';
-import { imageElement } from './scale.js';
+import {
+  resetScale,
+  imageElement,
+  imgDecreaseHandler,
+  imgIncreaseHandler,
+  decreaseImgBtn,
+  increaseImgBtn,
+} from './scale.js';
 
 const FILE_TYPES = ['jpg', 'jpeg', 'png'];
 const HASHTAG_COUNT = 5;
@@ -50,7 +56,6 @@ const previewImgHandler = () => {
   const hasAllowedExtention = FILE_TYPES.some((type) => fileName.endsWith(type));
 
   if (hasAllowedExtention) {
-    imageElement.src = '';
     imageElement.src = URL.createObjectURL(file);
   }
 };
@@ -64,6 +69,9 @@ const closeModalHandler = () => {
   body.classList.remove('modal-open');
 
   uploadCancel.removeEventListener('click', closeModalHandler);
+  uploadSelectImageForm.removeEventListener('submit', submitForm);
+  decreaseImgBtn.removeEventListener('click', imgDecreaseHandler);
+  increaseImgBtn.removeEventListener('click', imgIncreaseHandler);
   document.removeEventListener('keydown', onDocumentKeydown);
 };
 
@@ -78,6 +86,8 @@ function initPhotoPostForm() {
 
     uploadCancel.addEventListener('click', closeModalHandler);
     document.addEventListener('keydown', onDocumentKeydown);
+    decreaseImgBtn.addEventListener('click', imgDecreaseHandler);
+    increaseImgBtn.addEventListener('click', imgIncreaseHandler);
   };
   uploadFileInput.addEventListener('change', openModalHandler);
   uploadFileInput.addEventListener('change', previewImgHandler);
@@ -102,7 +112,7 @@ function initPhotoPostForm() {
   // Checking strings for duplicate hashtags
 
   const checkStringForDuplicateHashtags = (string) => {
-    const stringAsAnArray = removeSpaces(string);
+    const stringAsAnArray = removeSpaces(string.toLowerCase());
     const uniqueElements = Array.from(new Set(stringAsAnArray));
     return uniqueElements.length === stringAsAnArray.length;
   };
@@ -164,23 +174,25 @@ const unblockSubmitButton = () => {
   submitBtn.textContent = submitButtonTextOptions.INITIAL;
 };
 
-const formSubmitHandler = () => {
-  uploadSelectImageForm.addEventListener('submit', (evt) => {
-    evt.preventDefault();
+function submitForm(evt) {
+  evt.preventDefault();
 
-    if (pristine.validate()) {
-      blockSubmitButton();
-      sendData(new FormData(evt.target))
-        .then(() => {
-          closeModalHandler();
-          showSuccessWindow();
-        })
-        .catch(() => {
-          showErrorWindow();
-        })
-        .finally(unblockSubmitButton);
-    }
-  });
+  if (pristine.validate()) {
+    blockSubmitButton();
+    sendData(new FormData(evt.target))
+      .then(() => {
+        closeModalHandler();
+        showSuccessWindow();
+      })
+      .catch(() => {
+        showErrorWindow();
+      })
+      .finally(unblockSubmitButton);
+  }
+}
+
+const formSubmitHandler = () => {
+  uploadSelectImageForm.addEventListener('submit', submitForm);
 };
 
 export { initPhotoPostForm, onDocumentKeydown, formSubmitHandler };

@@ -28,7 +28,7 @@ const closeSuccessWindow = () => {
 };
 
 function onSuccessKeydown(evt) {
-  if (isEscapeKey) {
+  if (isEscapeKey(evt)) {
     evt.preventDefault();
 
     closeSuccessWindow();
@@ -62,7 +62,7 @@ const closeErrorWindow = () => {
 };
 
 function errorKeydownHandler(evt) {
-  if (isEscapeKey) {
+  if (isEscapeKey(evt)) {
     evt.preventDefault();
 
     closeErrorWindow();

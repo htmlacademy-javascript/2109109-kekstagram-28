@@ -3,8 +3,8 @@ const MIN_SCALE = 25;
 const MAX_SCALE = 100;
 const DEFAULT_SCALE = 100;
 
-const minifyImgBtn = document.querySelector('.scale__control--smaller');
-const magnifyImgBtn = document.querySelector('.scale__control--bigger');
+const decreaseImgBtn = document.querySelector('.scale__control--smaller');
+const increaseImgBtn = document.querySelector('.scale__control--bigger');
 const scaleValue = document.querySelector('.scale__control--value');
 const imageElement = document.querySelector('.img-upload__preview img');
 
@@ -15,22 +15,32 @@ const setScale = (value) => {
   scaleValue.value = `${value}%`;
 };
 
-minifyImgBtn.addEventListener('click', () => {
-  const newValue =
-    parseInt(scaleValue.value, 10) - SCALE_STEP >= MIN_SCALE
-      ? parseInt(scaleValue.value, 10) - SCALE_STEP
-      : MIN_SCALE;
+const imgIncreaseHandler = () => {
+  const newValue = Math.max(
+    MAX_SCALE,
+    parseInt(scaleValue.value, 10) - SCALE_STEP,
+  );
   setScale(newValue);
-});
+};
 
-magnifyImgBtn.addEventListener('click', () => {
-  const newValue =
-    parseInt(scaleValue.value, 10) + SCALE_STEP <= MAX_SCALE
-      ? parseInt(scaleValue.value, 10) + SCALE_STEP
-      : MAX_SCALE;
+const imgDecreaseHandler = () => {
+  const newValue = Math.max(
+    MIN_SCALE,
+    parseInt(scaleValue.value, 10) - SCALE_STEP,
+  );
   setScale(newValue);
-});
+};
+
+decreaseImgBtn.addEventListener('click', imgDecreaseHandler);
+increaseImgBtn.addEventListener('click', imgIncreaseHandler);
 
 const resetScale = () => setScale(DEFAULT_SCALE);
 
-export { resetScale, imageElement };
+export {
+  resetScale,
+  imgDecreaseHandler,
+  imgIncreaseHandler,
+  imageElement,
+  decreaseImgBtn,
+  increaseImgBtn,
+};

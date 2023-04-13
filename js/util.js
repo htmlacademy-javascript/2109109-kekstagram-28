@@ -1,4 +1,4 @@
-const DEBOUNCE_TIMEOUT = 500;
+//const DEBOUNCE_TIMEOUT = 5000;
 
 const showAlert = (message) => {
   const alertContainer = document.createElement('div');
@@ -21,12 +21,28 @@ const sortRandom = () => Math.random() - 0.5;
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
-const debounce = (callback, timeoutDelay = DEBOUNCE_TIMEOUT) => {
-  let timeoutId;
+// const debounce = (callback, timeoutDelay = DEBOUNCE_TIMEOUT) => {
+//   let timeoutId;
+//   return (...rest) => {
+//     clearTimeout(timeoutId);
+//     timeoutId = setTimeout(() => {
+//       callback.apply(this, rest);
+//       // eslint-disable-next-line no-console
+//       console.log('debounce');
+//     }, timeoutDelay);
+//   };
+// };
+
+const throttle = (callback, delayBetweenFrames) => {
+  let lastTime = 0;
+
   return (...rest) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+    const now = new Date();
+    if (now - lastTime >= delayBetweenFrames) {
+      callback.apply(this, rest);
+      lastTime = now;
+    }
   };
 };
 
-export { showAlert, sortRandom, isEscapeKey, debounce };
+export { showAlert, sortRandom, isEscapeKey, throttle };
