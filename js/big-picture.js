@@ -54,7 +54,6 @@ function btnCloseFullSizePhotoClickHandler() {
 // closing modal with Esc button
 
 function onDocumentKeydown(evt) {
-  // eslint-disable-next-line no-console
   if (isEscapeKey(evt)) {
     evt.preventDefault();
 

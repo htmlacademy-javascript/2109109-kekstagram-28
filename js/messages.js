@@ -17,76 +17,54 @@ const createTemplate = (type) => {
   return result;
 };
 
-const successTemplate = createTemplate('success');
-
-const errorTemplate = createTemplate('error');
-
-const closeSuccessWindow = () => {
-  successTemplate.successWindow.remove();
-  document.removeEventListener('keydown', onSuccessKeydown);
-  document.removeEventListener('click', successClickHandler);
+const templates = {
+  success: createTemplate('success'),
+  error: createTemplate('error'),
 };
 
-function onSuccessKeydown(evt) {
-  if (isEscapeKey(evt)) {
-    evt.preventDefault();
-
-    closeSuccessWindow();
-  }
-}
-
-// closing by clicking anywhere
-
-function successClickHandler(evt) {
-  if (evt.target !== successTemplate.successInner) {
-    closeSuccessWindow();
-  }
-}
-
-const showSuccessWindow = () => {
-  document.body.append(successTemplate.successWindow);
-
-  successTemplate.successBtn.addEventListener('click', () => {
-    closeSuccessWindow();
-  });
-
-  document.addEventListener('keydown', onSuccessKeydown);
-  document.addEventListener('click', successClickHandler);
-};
-
-const closeErrorWindow = () => {
-  errorTemplate.errorWindow.remove();
-  document.removeEventListener('keydown', errorKeydownHandler);
-  document.removeEventListener('click', errorClickHandler);
+const closeWindow = (template) => {
+  template[`${template.type}Window`].remove();
+  document.removeEventListener('keydown', template.keydownHandler);
+  document.removeEventListener('click', template.clickHandler);
   document.addEventListener('keydown', onDocumentKeydown);
 };
 
-function errorKeydownHandler(evt) {
+const keydownHandler = (template) => (evt) => {
   if (isEscapeKey(evt)) {
     evt.preventDefault();
 
-    closeErrorWindow();
+    closeWindow(template);
   }
-}
+};
 
-// closing by clicking anywhere
-
-function errorClickHandler(evt) {
-  if (evt.target !== errorTemplate.errorInner) {
-    closeErrorWindow();
+const clickHandler = (template) => (evt) => {
+  if (evt.target !== template[`${template.type}Inner`]) {
+    closeWindow(template);
   }
-}
+};
 
-const showErrorWindow = () => {
-  document.body.append(errorTemplate.errorWindow);
+const showWindow = (template) => {
+  document.body.append(template[`${template.type}Window`]);
 
-  errorTemplate.errorBtn.addEventListener('click', () => {
-    closeErrorWindow();
+  template[`${template.type}Btn`].addEventListener('click', () => {
+    closeWindow(template);
   });
 
-  document.addEventListener('keydown', errorKeydownHandler);
-  document.addEventListener('click', errorClickHandler);
+  template.keydownHandler = keydownHandler(template);
+  template.clickHandler = clickHandler(template);
+
+  document.addEventListener('keydown', template.keydownHandler);
+  document.addEventListener('click', template.clickHandler);
+
   document.removeEventListener('keydown', onDocumentKeydown);
+};
+
+const showSuccessWindow = () => {
+  showWindow({ type: 'success', ...templates.success });
+};
+
+const showErrorWindow = () => {
+  showWindow({ type: 'error', ...templates.error });
 };
 
 export { showSuccessWindow, showErrorWindow };
