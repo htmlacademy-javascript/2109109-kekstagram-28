@@ -1,4 +1,3 @@
-// Create an array of effects
 const EFFECTS = {
   default: {
     filter: 'none',
@@ -61,7 +60,6 @@ const isDefault = () => chosenEffect === DEFAULT_EFFECT;
 // Functions to show/hide the slider and update the slider
 const showSlider = () => {
   effectLevel.classList.remove('hidden');
-  sliderContainerElement.addEventListener('change', sliderChangeHandler);
 };
 
 const hideSlider = () => {
@@ -114,6 +112,7 @@ function sliderChangeHandler(evt) {
 }
 
 slider.on('update', (sliderValues) => {
+  sliderContainerElement.addEventListener('change', sliderChangeHandler);
   const sliderValue = sliderValues[0];
   effectValue.value = sliderValue;
   if (isDefault()) {
