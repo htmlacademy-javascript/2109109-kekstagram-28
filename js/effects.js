@@ -1,4 +1,3 @@
-// Create an array of effects
 const EFFECTS = {
   default: {
     filter: 'none',
@@ -44,6 +43,8 @@ const EFFECTS = {
   },
 };
 
+const DEFAULT_EFFECT = EFFECTS.default;
+
 const imageElement = document.querySelector('.img-upload__preview img');
 const sliderContainerElement = document.querySelector('.img-upload__effects');
 const sliderElement = document.querySelector('.effect-level__slider');
@@ -51,15 +52,19 @@ const effectValue = document.querySelector('.effect-level__value');
 const effectLevel = document.querySelector('.img-upload__effect-level');
 
 // Set the default effect
-const DEFAULT_EFFECT = EFFECTS.default;
 let chosenEffect = DEFAULT_EFFECT;
 
 // Function to check if the chosen effect is the default effect
 const isDefault = () => chosenEffect === DEFAULT_EFFECT;
 
 // Functions to show/hide the slider and update the slider
-const showSlider = () => effectLevel.classList.remove('hidden');
-const hideSlider = () => effectLevel.classList.add('hidden');
+const showSlider = () => {
+  effectLevel.classList.remove('hidden');
+};
+
+const hideSlider = () => {
+  effectLevel.classList.add('hidden');
+};
 
 const updateSlider = () => {
   sliderElement.noUiSlider.updateOptions({
@@ -96,14 +101,17 @@ const slider = noUiSlider.create(sliderElement, {
 // Hide the slider initially
 hideSlider();
 
+// Add event listener
+sliderContainerElement.addEventListener('change', sliderChangeHandler);
+
 // Add event listeners
-sliderContainerElement.addEventListener('change', (evt) => {
+function sliderChangeHandler(evt) {
   if (evt.target.classList.contains('effects__radio')) {
     chosenEffect = EFFECTS[evt.target.value];
     imageElement.className = `effects__preview--${evt.target.value}`;
-    updateSlider();
   }
-});
+  updateSlider();
+}
 
 slider.on('update', (sliderValues) => {
   const sliderValue = sliderValues[0];

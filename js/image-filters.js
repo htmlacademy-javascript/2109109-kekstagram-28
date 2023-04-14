@@ -1,5 +1,5 @@
 import { renderThumbnails } from './thumbnail.js';
-import { debounce, sortRandom } from './util.js';
+import { throttle, sortRandom } from './util.js';
 
 const TIMEOUT = 500;
 const PICTURES_COUNT = 10;
@@ -53,7 +53,7 @@ const setUpFiltering = (photos) => {
   filterBtns.forEach((btn) => {
     btn.addEventListener(
       'click',
-      debounce((event) => {
+      throttle((event) => {
         filterButtonClick(event.target.id, photos);
       }, TIMEOUT),
     );

@@ -1,5 +1,3 @@
-const DEBOUNCE_TIMEOUT = 500;
-
 const showAlert = (message) => {
   const alertContainer = document.createElement('div');
   alertContainer.style.zIndex = '100';
@@ -21,12 +19,16 @@ const sortRandom = () => Math.random() - 0.5;
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
-const debounce = (callback, timeoutDelay = DEBOUNCE_TIMEOUT) => {
-  let timeoutId;
+const throttle = (callback, delayBetweenFrames) => {
+  let lastTime = 0;
+
   return (...rest) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+    const now = new Date();
+    if (now - lastTime >= delayBetweenFrames) {
+      callback.apply(this, rest);
+      lastTime = now;
+    }
   };
 };
 
-export { showAlert, sortRandom, isEscapeKey, debounce };
+export { showAlert, sortRandom, isEscapeKey, throttle };
