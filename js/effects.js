@@ -64,7 +64,6 @@ const showSlider = () => {
 
 const hideSlider = () => {
   effectLevel.classList.add('hidden');
-  sliderContainerElement.removeEventListener('change', sliderChangeHandler);
 };
 
 const updateSlider = () => {
@@ -102,17 +101,19 @@ const slider = noUiSlider.create(sliderElement, {
 // Hide the slider initially
 hideSlider();
 
+// Add event listener
+sliderContainerElement.addEventListener('change', sliderChangeHandler);
+
 // Add event listeners
 function sliderChangeHandler(evt) {
   if (evt.target.classList.contains('effects__radio')) {
     chosenEffect = EFFECTS[evt.target.value];
     imageElement.className = `effects__preview--${evt.target.value}`;
-    updateSlider();
   }
+  updateSlider();
 }
 
 slider.on('update', (sliderValues) => {
-  sliderContainerElement.addEventListener('change', sliderChangeHandler);
   const sliderValue = sliderValues[0];
   effectValue.value = sliderValue;
   if (isDefault()) {
